@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.0.1
+ * Version: 1.0.2
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -27,7 +27,7 @@ class wp_suchanalyse {
 
         $this->plugin_name = 'Suchanalyse';
         $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.0.1';
+        $this->plugin_version = '1.0.2';
 
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
@@ -149,7 +149,9 @@ class wp_suchanalyse {
             if($result->keyword != '' && preg_match('/\((.*)\)/', $result->keyword) == 1) {
                 $result->keyword = str_replace(array('(', ')'), '', $result->keyword);
                 foreach($this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') ) as $blocked) {
-                    $result->keyword = str_replace( $blocked, '<strike>'.$blocked.'</strike>', $result->keyword );
+//                    $result->keyword = str_replace( $blocked, '<strike>'.$blocked.'</strike>', $result->keyword );
+                    $result->keyword = preg_replace( '/ ('.$blocked.') /i', ' <strike>'.$blocked.'</strike> ', ' '.$result->keyword.' ' );
+                    $result->keyword = trim($result->keyword);
                 }
 
                 $out .= '<li>'.
