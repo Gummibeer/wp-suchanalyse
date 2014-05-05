@@ -1,0 +1,106 @@
+@white: #ffffff;
+@black: #000000;
+
+@blue: #13a89e;
+@red: #e25942;
+@yellow: #f6cb51;
+@grey: #3f4953;
+@beige: #f2e7da;
+
+#wp_suchanalyse_dashboard_widget {
+  ul > li {
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 10px;
+
+    > strong,
+    > span,
+    > a {
+      padding: 3px 5px;
+    }
+
+    > strong {
+      background: @blue;
+      color: @white;
+    }
+
+    > .counter {
+      background: @grey;
+      color: @white;
+    }
+
+    > .delete {
+      background: @red;
+      color: @white;
+    }
+
+    > .block {
+      background: @yellow;
+      color: @white;
+    }
+  }
+}
+
+#wp_suchanalyse_options_page {
+  .row {
+    width: 100%;
+    display: block;
+    padding: 15px 0;
+
+    &:before,
+    &:after {
+      content: '';
+      display: table;
+    }
+
+    &:after {
+      clear:both;
+    }
+
+    .col {
+      padding: 0 15px;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      float: left;
+
+      &.col-12 {
+        width: 100%;
+      }
+
+      &.col-9 {
+        width: 75%;
+      }
+
+      &.col-6 {
+        width: 50%;
+      }
+
+      &.col-3 {
+        width: 25%;
+      }
+    }
+  }
+
+  label {
+    display: block;
+  }
+
+  input[type=text],
+  input[type=number],
+  textarea,
+  select {
+    display: block;
+    min-width: 100%;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  a.active {
+    color: #0074A2;
+  }
+
+  a.inactive {
+    color: #737373;
+  }
+}
