@@ -129,7 +129,7 @@ class wp_suchanalyse {
                     $out .= '<li>'.
                         '<strong>'.$result->keyword.'</strong>'.
                         '<span class="counter">('.$result->count.')</span>'.
-                        '<a href="?'.$this->plugin_slug.'=block&keyword='.$result->keyword.'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
+                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
                         '</li>';
                 }
             } elseif($result->keyword == '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
@@ -155,7 +155,7 @@ class wp_suchanalyse {
                 $out .= '<li>'.
                     '<strong>'.$result->keyword.'</strong>'.
                     '<span class="counter">('.$result->count.')</span>'.
-                    '<a href="?'.$this->plugin_slug.'=delete&id='.$result->id.'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
+                    '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
                     '</li>';
                 $search_count = $search_count + $result->count;
             }
@@ -190,7 +190,7 @@ class wp_suchanalyse {
 					</script>";
 
         $out .= '<hr />';
-        $out .= '<a href="?'.$this->plugin_slug.'=delete" title="">alle Daten löschen</a>';
+        $out .= '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete' ) ).'" title="">alle Daten löschen</a>';
 
         echo $out;
     }
@@ -246,6 +246,90 @@ class wp_suchanalyse {
                                     <input id="submit" class="button button-primary" type="submit" value="Einstellungen speichern" name="submit" />
                                 </p>
                             </form>
+<?php
+
+        global $wpdb;
+        $sql = strval( 'SELECT id FROM '.$this->table_name.' ORDER BY count DESC' );
+        $results = $wpdb->get_col( $sql );
+
+        $search_count = 0;
+        $no_search_count = 0;
+
+        $out = '<h4>einzelne Such-Keywords</h4>';
+        $out .= '<ul>';
+        foreach($results as $id) {
+            $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE id = "'.$id.'"' );
+            $result = $wpdb->get_row( $sql );
+            if($result->keyword != '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
+                if( !in_array( $result->keyword, $this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') ) ) ) {
+                    $out .= '<li>'.
+                        '<strong>'.$result->keyword.'</strong>'.
+                        '<span class="counter">('.$result->count.')</span>'.
+                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
+                        '</li>';
+                }
+            } elseif($result->keyword == '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
+                $no_search_count = $no_search_count + $result->count;
+            }
+        }
+        $out .= '</ul>';
+        $out .= '<div class="clear"></div>';
+
+        $out .= '<hr />';
+        $out .= '<br />';
+        $out .= '<h4>gesamte Suchanfragen</h4>';
+        $out .= '<ul>';
+        foreach($results as $id) {
+            $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE id = "'.$id.'"' );
+            $result = $wpdb->get_row( $sql );
+            if($result->keyword != '' && preg_match('/\((.*)\)/', $result->keyword) == 1) {
+                $result->keyword = str_replace(array('(', ')'), '', $result->keyword);
+                foreach($this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') ) as $blocked) {
+                    $result->keyword = str_replace( $blocked, '<strike>'.$blocked.'</strike>', $result->keyword );
+                }
+
+                $out .= '<li>'.
+                    '<strong>'.$result->keyword.'</strong>'.
+                    '<span class="counter">('.$result->count.')</span>'.
+                    '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
+                    '</li>';
+                $search_count = $search_count + $result->count;
+            }
+        }
+        $out .= '</ul>';
+        $out .= '<div class="clear"></div>';
+
+        $out .= '<hr />';
+        $out .= '<br />';
+        $out .= '<h4>Suchanfragenanzahl <small>'.$search_count.' Suchanfragen / '.($search_count + $no_search_count).' Seitenaufrufe</small></h4>';
+        $out .= '<div id="'.$this->plugin_slug.'_chart"></div>';
+        $out .=		"<script type=\"text/javascript\">
+						jQuery(window).on('load', function() {
+							google.load('visualization', '1.0', {'packages':['corechart'], 'callback':drawChart});
+							function drawChart() {
+								var data = new google.visualization.DataTable();
+									data.addColumn('string', 'Typ');
+									data.addColumn('number', 'Anzahl');
+									data.addRows([
+										['Suchanfragen', ".$search_count."],
+										['ohne Suchanfrage', ".$no_search_count."]
+									]);
+
+								var options = {'title':'Verhältnis von Seitenaufrufen zu Suchanfragen',
+								                'colors':['#13a89e', '#3f4953'],
+												'width':380,
+												'height':260};
+								var chart = new google.visualization.PieChart(document.getElementById('".$this->plugin_slug."_chart'));
+								chart.draw(data, options);
+							}
+						});
+					</script>";
+
+        $out .= '<hr />';
+        $out .= '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete' ) ).'" title="">alle Daten löschen</a>';
+
+        echo $out;
+        ?>
                         </div>
                     </div>
                 </div>
