@@ -1,11 +1,11 @@
 <?php
 /**
-Plugin Name: Wordpress Suchanalayse
-Description: Speichert seiteninterne Suchanfragen
-Version: 0.5.0
-Text Domain: wp_suchanalyse
-Author: Tom Witkowski
-Copyright 2014 Tom Witkowski (email : dev.gummibeer@gmail.com)
+ * Plugin Name: Wordpress Suchanalayse
+ * Description: Speichert seiteninterne Suchanfragen
+ * Version: 0.5.0
+ * Text Domain: wp_suchanalyse
+ * Author: Tom Witkowski
+ * Copyright 2014 Tom Witkowski (email : dev.gummibeer@gmail.com)
  */
 
 class wp_suchanalyse {
@@ -330,6 +330,7 @@ class wp_suchanalyse {
 
     private function implode_keywords( $keywords ) {
         $keywords = implode( ', ', $keywords );
+        $keywords = trim( $keywords, ', ' );
         $keywords = trim( $keywords );
         return $keywords;
     }
