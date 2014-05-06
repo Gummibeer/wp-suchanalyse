@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.1.9
+ * Version: 1.1.10
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -472,6 +472,8 @@ class wp_suchanalyse {
 
     private function implode_keywords( $keywords ) {
         $keywords = implode( ', ', $keywords );
+        $keywords = preg_replace( '/[^a-z0-9, äöüß]/i', '', $keywords );
+
         $keywords = trim( $keywords, ', ' );
         $keywords = trim( $keywords );
         return $keywords;
