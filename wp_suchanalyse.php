@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.0.5
+ * Version: 1.1.5
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -27,7 +27,7 @@ class wp_suchanalyse {
 
         $this->plugin_name = 'Suchanalyse';
         $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.0.5';
+        $this->plugin_version = '1.1.5';
 
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
@@ -119,18 +119,25 @@ class wp_suchanalyse {
         $search_count = 0;
         $no_search_count = 0;
 
-        $out = '<h4>einzelne Such-Keywords</h4>';
+        $out = '';
+
+        $out .= '<h4>einzelne Such-Keywords</h4>';
         $out .= '<ul>';
         foreach($results as $id) {
             $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE id = "'.$id.'"' );
             $result = $wpdb->get_row( $sql );
             if($result->keyword != '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
                 if( !in_array( $result->keyword, $this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') ) ) ) {
+                    $search_check =& new WP_Query("s=$result->keyword & showposts=-1");
+                    $search_results = $search_check->post_count;
+                    $search_class = $search_results == 0 ? ' no_post' : '';
+
                     $out .= '<li>'.
-                        '<strong>'.$result->keyword.'</strong>'.
-                        '<span class="counter">('.$result->count.')</span>'.
-                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
-                        '</li>';
+                            '<strong>'.$result->keyword.'</strong>'.
+                            '<span class="counter">('.$result->count.')</span>'.
+                            '<span class="results'.$search_class.'">('.$search_results.')</span>'.
+                            '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
+                            '</li>';
                 }
             } elseif($result->keyword == '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
                 $no_search_count = $no_search_count + $result->count;
@@ -158,10 +165,10 @@ class wp_suchanalyse {
 
                 if( $i > $k ) {
                     $out .= '<li>'.
-                        '<strong>'.$result->keyword.'</strong>'.
-                        '<span class="counter">('.$result->count.')</span>'.
-                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
-                        '</li>';
+                            '<strong>'.$result->keyword.'</strong>'.
+                            '<span class="counter">('.$result->count.')</span>'.
+                            '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
+                            '</li>';
                 }
 
                 $search_count = $search_count + $result->count;
@@ -195,6 +202,19 @@ class wp_suchanalyse {
 							}
 						});
 					</script>";
+
+        $out .= '<br />';
+        $out .= '<hr />';
+        $out .= '<h4>Beispiel</h4>';
+        $out .= '<ul>';
+        $out .= '<li>';
+        $out .= '<strong>Suchwort</strong>';
+        $out .= '<span class="counter">Suchanzahl</span>';
+        $out .= '<span class="results">Suchergebnisse</span>';
+        $out .= '<a href="#" title="Suchwort blockieren" class="block">Aktion</a>';
+        $out .= '</li>';
+        $out .= '</ul>';
+        $out .= '<div class="clear"></div>';
 
         $out .= '<hr />';
         $out .= '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete' ) ).'" title="">alle Daten löschen</a>';
@@ -272,11 +292,16 @@ class wp_suchanalyse {
             $result = $wpdb->get_row( $sql );
             if($result->keyword != '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
                 if( !in_array( $result->keyword, $this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') ) ) ) {
+                    $search_check =& new WP_Query("s=$result->keyword & showposts=-1");
+                    $search_results = $search_check->post_count;
+                    $search_class = $search_results == 0 ? ' no_post' : '';
+
                     $out .= '<li>'.
-                        '<strong>'.$result->keyword.'</strong>'.
-                        '<span class="counter">('.$result->count.')</span>'.
-                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
-                        '</li>';
+                            '<strong>'.$result->keyword.'</strong>'.
+                            '<span class="counter">('.$result->count.')</span>'.
+                            '<span class="results'.$search_class.'">('.$search_results.')</span>'.
+                            '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
+                            '</li>';
                 }
             } elseif($result->keyword == '' && preg_match('/\((.*)\)/', $result->keyword) != 1) {
                 $no_search_count = $no_search_count + $result->count;
@@ -300,10 +325,10 @@ class wp_suchanalyse {
                 }
 
                 $out .= '<li>'.
-                    '<strong>'.$result->keyword.'</strong>'.
-                    '<span class="counter">('.$result->count.')</span>'.
-                    '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
-                    '</li>';
+                        '<strong>'.$result->keyword.'</strong>'.
+                        '<span class="counter">('.$result->count.')</span>'.
+                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
+                        '</li>';
                 $search_count = $search_count + $result->count;
             }
         }
@@ -335,6 +360,19 @@ class wp_suchanalyse {
 							}
 						});
 					</script>";
+
+        $out .= '<br />';
+        $out .= '<hr />';
+        $out .= '<h4>Beispiel</h4>';
+        $out .= '<ul>';
+        $out .= '<li>';
+        $out .= '<strong>Suchwort</strong>';
+        $out .= '<span class="counter">Suchanzahl</span>';
+        $out .= '<span class="results">Suchergebnisse</span>';
+        $out .= '<a href="#" title="Suchwort blockieren" class="block">Aktion</a>';
+        $out .= '</li>';
+        $out .= '</ul>';
+        $out .= '<div class="clear"></div>';
 
         $out .= '<hr />';
         $out .= '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete' ) ).'" title="">alle Daten löschen</a>';
