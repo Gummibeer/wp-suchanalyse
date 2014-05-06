@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.0.3
+ * Version: 1.0.5
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -27,7 +27,7 @@ class wp_suchanalyse {
 
         $this->plugin_name = 'Suchanalyse';
         $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.0.3';
+        $this->plugin_version = '1.0.5';
 
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
@@ -148,16 +148,22 @@ class wp_suchanalyse {
             $result = $wpdb->get_row( $sql );
             if($result->keyword != '' && preg_match('/\((.*)\)/', $result->keyword) == 1) {
                 $result->keyword = str_replace(array('(', ')'), '', $result->keyword);
+                $i = count( explode( ' ', $result->keyword ) );
+                $k = 0;
                 foreach($this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') ) as $blocked) {
+                    $k = $k + preg_match( '/ ('.$blocked.') /i', ' '.$result->keyword.' ' );
                     $result->keyword = preg_replace( '/ ('.$blocked.') /i', ' <strike>'.$blocked.'</strike> ', ' '.$result->keyword.' ' );
                     $result->keyword = trim($result->keyword);
                 }
 
-                $out .= '<li>'.
-                    '<strong>'.$result->keyword.'</strong>'.
-                    '<span class="counter">('.$result->count.')</span>'.
-                    '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
-                    '</li>';
+                if( $i > $k ) {
+                    $out .= '<li>'.
+                        '<strong>'.$result->keyword.'</strong>'.
+                        '<span class="counter">('.$result->count.')</span>'.
+                        '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete', 'id' => $result->id ) ).'" title="Suchanfrage löschen" class="delete"><i class="icon-circledelete"></i></a>'.
+                        '</li>';
+                }
+
                 $search_count = $search_count + $result->count;
             }
         }
@@ -208,7 +214,9 @@ class wp_suchanalyse {
 
     public function display_options_page() {
         $keywords = $this->explode_keywords( get_option($this->plugin_slug.'_blocked_keywords') );
+        $keywords = array_map('strtolower', $keywords);
         $keywords = array_unique( $keywords );
+        sort($keywords);
         update_option( $this->plugin_slug.'_blocked_keywords', $this->implode_keywords($keywords) );
 ?>
         <h2>Suchanalyse</h2>
