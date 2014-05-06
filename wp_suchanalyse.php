@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.1.7
+ * Version: 1.1.8
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -27,7 +27,7 @@ class wp_suchanalyse {
 
         $this->plugin_name = 'Suchanalyse';
         $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.1.7';
+        $this->plugin_version = '1.1.8';
 
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
@@ -176,12 +176,13 @@ class wp_suchanalyse {
                 $search_count = $search_count + $result->count;
             }
         }
+
         $out .= '</ul>';
         $out .= '<div class="clear"></div>';
 
         $out .= '<hr />';
         $out .= '<br />';
-        $out .= '<h4>Suchanfragenanzahl <small>'.$search_count.' Suchanfragen / '.($search_count + $no_search_count).' Seitenaufrufe</small></h4>';
+        $out .= '<h4>Suchanfragenanzahl <small>'.$search_count.' Suchanfragen / '.$no_search_count.' Seitenaufrufe</small></h4>';
         $out .= '<div id="'.$this->plugin_slug.'_chart"></div>';
         $out .=		"<script type=\"text/javascript\">
 						jQuery(window).on('load', function() {
@@ -212,7 +213,7 @@ class wp_suchanalyse {
         $out .= '<li>';
         $out .= '<strong>Suchwort</strong>';
         $out .= '<span class="counter">Suchanzahl</span>';
-        $out .= '<span class="results">Suchergebnisse</span>';
+        $out .= '<a href="#" class="results">Suchergebnisse</a>';
         $out .= '<a href="#" title="Suchwort blockieren" class="block">Aktion</a>';
         $out .= '</li>';
         $out .= '</ul>';
@@ -251,7 +252,7 @@ class wp_suchanalyse {
                         </h3>
                         <div class="inside">
                             <?php
-                            if($_GET['settings-updated']) {
+                            if( $_GET['settings-updated'] ) {
                                 echo $this->return_admin_notice( '<strong>Erfolg:</strong> Änderungen erfolgreich übernommen.', 'updated' );
                             }
                             ?>
@@ -339,7 +340,7 @@ class wp_suchanalyse {
 
         $out .= '<hr />';
         $out .= '<br />';
-        $out .= '<h4>Suchanfragenanzahl <small>'.$search_count.' Suchanfragen / '.($search_count + $no_search_count).' Seitenaufrufe</small></h4>';
+        $out .= '<h4>Suchanfragenanzahl <small>'.$search_count.' Suchanfragen / '.$no_search_count.' Seitenaufrufe</small></h4>';
         $out .= '<div id="'.$this->plugin_slug.'_chart"></div>';
         $out .=		"<script type=\"text/javascript\">
 						jQuery(window).on('load', function() {
@@ -370,7 +371,7 @@ class wp_suchanalyse {
         $out .= '<li>';
         $out .= '<strong>Suchwort</strong>';
         $out .= '<span class="counter">Suchanzahl</span>';
-        $out .= '<span class="results">Suchergebnisse</span>';
+        $out .= '<a href="#" class="results">Suchergebnisse</a>';
         $out .= '<a href="#" title="Suchwort blockieren" class="block">Aktion</a>';
         $out .= '</li>';
         $out .= '</ul>';
