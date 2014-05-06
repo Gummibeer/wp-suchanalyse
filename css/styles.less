@@ -3,9 +3,12 @@
 
 @blue: #13a89e;
 @red: #e25942;
+@dark-red: darken(@red, 20%);
 @yellow: #f6cb51;
-@grey: #3f4953;
+@dark-yellow: darken(@yellow, 20%);
 @beige: #f2e7da;
+@dark-beige: darken(@beige, 20%);
+@grey: #3f4953;
 
 #wp_suchanalyse_dashboard_widget,
 #wp_suchanalyse_options_page {
@@ -51,6 +54,14 @@
       &.no_post {
         background: @red;
         color: @white;
+
+        &:hover {
+          background: @dark-red;
+        }
+      }
+
+      &:hover {
+        background: @dark-beige;
       }
     }
 
@@ -61,11 +72,19 @@
     > .delete {
       background: @red;
       color: @white;
+
+      &:hover {
+        background: @dark-red;
+      }
     }
 
     > .block {
       background: @yellow;
       color: @white;
+
+      &:hover {
+        background: @dark-yellow;
+      }
     }
   }
 }
