@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.1.8
+ * Version: 1.1.9
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -25,13 +25,16 @@ class wp_suchanalyse {
     public function __construct() {
         global $wpdb;
 
-        $this->plugin_name = 'Suchanalyse';
-        $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.1.8';
-
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
         $this->plugin_dir = dirname($this->plugin_file).'/';
+
+        $plugin_data = get_plugin_data( $this->plugin_file, false, false );
+
+        $this->plugin_name = $plugin_data['Name'];
+        $this->plugin_slug = $plugin_data['TextDomain'];
+        $this->plugin_version = $plugin_data['Version'];
+
         $this->plugin_url = plugins_url().'/'.$this->plugin_slug.'/';
 
         $this->table_name = $wpdb->prefix . $this->plugin_slug . '_suchanfragen';
