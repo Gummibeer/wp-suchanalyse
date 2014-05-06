@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.1.6
+ * Version: 1.1.7
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -27,7 +27,7 @@ class wp_suchanalyse {
 
         $this->plugin_name = 'Suchanalyse';
         $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.1.6';
+        $this->plugin_version = '1.1.7';
 
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
@@ -72,35 +72,37 @@ class wp_suchanalyse {
     }
 
     public function register_search_query() {
-        global $wpdb;
-        $search_query = get_search_query(false);
+        if( !current_user_can( 'manage_options' ) ) {
+            global $wpdb;
+            $search_query = get_search_query(false);
 
-        $search_query = preg_replace('/<script(.*?)>(.*?)<\/script>/i', ' ', $search_query);
-        $search_query = esc_attr($search_query);
-        $search_query = preg_replace('/&(?:[a-z\d]+|#\d+|#x[a-f\d]+);/i', ' ', $search_query);
-        $search_query = preg_replace('/[^A-Za-z0-9äöüß]/', ' ', $search_query);
-        $search_query = preg_replace('/\s\s+/', ' ', $search_query);
-        $search_query = trim($search_query);
-        $search_query = strtolower($search_query);
+            $search_query = preg_replace('/<script(.*?)>(.*?)<\/script>/i', ' ', $search_query);
+            $search_query = esc_attr($search_query);
+            $search_query = preg_replace('/&(?:[a-z\d]+|#\d+|#x[a-f\d]+);/i', ' ', $search_query);
+            $search_query = preg_replace('/[^A-Za-z0-9äöüß]/', ' ', $search_query);
+            $search_query = preg_replace('/\s\s+/', ' ', $search_query);
+            $search_query = trim($search_query);
+            $search_query = strtolower($search_query);
 
-        $search_keywords = explode(' ', $search_query);
-        foreach($search_keywords as $keyword) {
-            $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE keyword = "'.$keyword.'"' );
-            $result = $wpdb->get_row( $sql );
-            if($result->count == 0) {
-                $wpdb->insert( $this->table_name, array( 'keyword' => $keyword, 'count' => '1' ) );
-            } else {
-                $wpdb->update( $this->table_name, array( 'count' => strval($result->count * 1 + 1) ), array( 'keyword' => $keyword ) );
+            $search_keywords = explode(' ', $search_query);
+            foreach($search_keywords as $keyword) {
+                $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE keyword = "'.$keyword.'"' );
+                $result = $wpdb->get_row( $sql );
+                if($result->count == 0) {
+                    $wpdb->insert( $this->table_name, array( 'keyword' => $keyword, 'count' => '1' ) );
+                } else {
+                    $wpdb->update( $this->table_name, array( 'count' => strval($result->count * 1 + 1) ), array( 'keyword' => $keyword ) );
+                }
             }
-        }
 
-        if($search_query != '') {
-            $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE keyword = "('.$search_query.')"' );
-            $result = $wpdb->get_row( $sql );
-            if($result->count == 0) {
-                $wpdb->insert( $this->table_name, array( 'keyword' => '('.$search_query.')', 'count' => '1' ) );
-            } else {
-                $wpdb->update( $this->table_name, array( 'count' => strval($result->count * 1 + 1) ), array( 'keyword' => '('.$search_query.')' ) );
+            if($search_query != '') {
+                $sql = strval( 'SELECT * FROM '.$this->table_name.' WHERE keyword = "('.$search_query.')"' );
+                $result = $wpdb->get_row( $sql );
+                if($result->count == 0) {
+                    $wpdb->insert( $this->table_name, array( 'keyword' => '('.$search_query.')', 'count' => '1' ) );
+                } else {
+                    $wpdb->update( $this->table_name, array( 'count' => strval($result->count * 1 + 1) ), array( 'keyword' => '('.$search_query.')' ) );
+                }
             }
         }
     }
