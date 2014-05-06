@@ -27,12 +27,31 @@
       > strike {
         color: @grey;
         font-weight: 500;
+        display: none;
+      }
+
+      &:hover {
+        white-space: nowrap;
+
+        > strike {
+          display: inline;
+        }
       }
     }
 
     > .counter {
       background: @grey;
       color: @white;
+    }
+
+    > .results {
+      background: @beige;
+      color: @grey;
+
+      &.no_post {
+        background: @red;
+        color: @white;
+      }
     }
 
     a {
@@ -52,6 +71,10 @@
 }
 
 #wp_suchanalyse_options_page {
+  ul > li > strong > strike {
+    display: inline;
+  }
+
   .row {
     width: 100%;
     display: block;
