@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Suchanalayse
  * Plugin URI: https://github.com/Gummibeer/wp-suchanalyse
  * Description: Speichert seiteninterne Suchanfragen
- * Version: 1.1.5
+ * Version: 1.1.6
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
@@ -27,7 +27,7 @@ class wp_suchanalyse {
 
         $this->plugin_name = 'Suchanalyse';
         $this->plugin_slug = 'wp_suchanalyse';
-        $this->plugin_version = '1.1.5';
+        $this->plugin_version = '1.1.6';
 
         $this->wp_basepath = ABSPATH;
         $this->plugin_file = __FILE__;
@@ -135,7 +135,7 @@ class wp_suchanalyse {
                     $out .= '<li>'.
                             '<strong>'.$result->keyword.'</strong>'.
                             '<span class="counter">('.$result->count.')</span>'.
-                            '<span class="results'.$search_class.'">('.$search_results.')</span>'.
+                            '<a href="'.add_query_arg( array( 's' => $result->keyword ), get_site_url() ).'" class="results'.$search_class.'" target="_blank">('.$search_results.')</a>'.
                             '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
                             '</li>';
                 }
@@ -299,7 +299,7 @@ class wp_suchanalyse {
                     $out .= '<li>'.
                             '<strong>'.$result->keyword.'</strong>'.
                             '<span class="counter">('.$result->count.')</span>'.
-                            '<span class="results'.$search_class.'">('.$search_results.')</span>'.
+                            '<a href="'.add_query_arg( array( 's' => $result->keyword ), get_site_url() ).'" class="results'.$search_class.'" target="_blank">('.$search_results.')</a>'.
                             '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
                             '</li>';
                 }
