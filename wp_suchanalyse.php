@@ -17,7 +17,7 @@ class wp_suchanalyse {
     private $plugin_dir;
     private $plugin_url;
     private $plugin_name;
-    private $plugin_slug;
+    protected $plugin_slug;
     private $plugin_version;
     private $table_name;
     private $table_create;
@@ -461,7 +461,7 @@ class wp_suchanalyse {
         update_option( $this->plugin_slug.'_blocked_keywords', $this->implode_keywords($keywords) );
     }
 
-    private function explode_keywords( $keywords ) {
+    protected function explode_keywords( $keywords ) {
         $keywords = trim( $keywords );
         $keywords = str_replace( ',', ' ', $keywords );
         $keywords = preg_replace('/[\t\n]/i', ' ', $keywords);
@@ -470,7 +470,7 @@ class wp_suchanalyse {
         return $keywords;
     }
 
-    private function implode_keywords( $keywords ) {
+    protected function implode_keywords( $keywords ) {
         $keywords = implode( ', ', $keywords );
         $keywords = preg_replace( '/[^a-z0-9, äöüß]/i', '', $keywords );
 
@@ -481,3 +481,4 @@ class wp_suchanalyse {
 }
 
 $wp_suchanalyse = new wp_suchanalyse;
+require_once( 'similar_content.class.php' );
