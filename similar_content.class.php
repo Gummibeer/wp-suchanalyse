@@ -44,48 +44,90 @@ class similar_content extends wp_suchanalyse {
                 $cur_content = get_the_content();
                 $cur_excerpt = get_the_excerpt();
 
+                $title_words = str_word_count( preg_replace( '/[^a-z0-9]/i', ' ', $cur_title ) );
+                $content_words = str_word_count( preg_replace( '/[^a-z0-9]/i', ' ', $cur_content ) );
+                $excerpt_words = str_word_count( preg_replace( '/[^a-z0-9]/i', ' ', $cur_excerpt ) );
+
                 if( !is_int($this->posts[$cur_id]) ) {
                     $this->posts[$cur_id] = 0;
                 }
 
                 foreach( $this->keywords as $keyword ) {
-                    // exact Matches
-                    preg_match( '/'.$keyword.'/i', $cur_keywords, $keywords_matches );
-                    preg_match( '/'.$keyword.'/i', $cur_title, $title_matches );
-                    preg_match( '/'.$keyword.'/i', $cur_content, $content_matches );
-                    preg_match( '/'.$keyword.'/i', $cur_excerpt, $excerpt_matches );
-                    if( count($keywords_matches) > 0 ) {
+                    // exact matches
+                    preg_match_all( '/ '.$keyword.' /i', ' '.$cur_keywords.' ', $keywords_matches );
+                    preg_match_all( '/ '.$keyword.' /i', ' '.$cur_title.' ', $title_matches );
+                    preg_match_all( '/ '.$keyword.' /i', ' '.$cur_content.' ', $content_matches );
+                    preg_match_all( '/ '.$keyword.' /i', ' '.$cur_excerpt.' ', $excerpt_matches );
+
+                    $keywords_matches = count($keywords_matches[0]);
+                    $title_matches = count($title_matches[0]);
+                    $content_matches = count($content_matches[0]);
+                    $excerpt_matches = count($excerpt_matches[0]);
+
+                    if( $keywords_matches > 0 ) {
                         $this->posts[$cur_id] = $this->posts[$cur_id] + 5;
                     }
-                    if( count($title_matches) > 0 ) {
-                        $this->posts[$cur_id] = $this->posts[$cur_id] + 3;
+                    if( $title_matches > 0 ) {
+                        $density = $title_words / $title_matches;
+                        $density = $density > 1 ? 1 : $density;
+                        $density++;
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + (3 * $density);
                     }
-                    if( count($content_matches) > 0 ) {
-                        $this->posts[$cur_id] = $this->posts[$cur_id] + 2;
+                    if( $content_matches > 0 ) {
+                        $density = $content_words / $content_matches;
+                        $density = $density > 1 ? 1 : $density;
+                        $density++;
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + (2 * $density);
                     }
-                    if( count($excerpt_matches) > 0 ) {
-                        $this->posts[$cur_id] = $this->posts[$cur_id] + 1;
+                    if( $excerpt_matches > 0 ) {
+                        $density = $excerpt_words / $excerpt_matches;
+                        $density = $density > 1 ? 1 : $density;
+                        $density++;
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + (1 * $density);
                     }
 
-                    // similar
+                    // part Matches
+                    preg_match_all( '/'.$keyword.'/i', $cur_keywords, $keywords_matches );
+                    preg_match_all( '/'.$keyword.'/i', $cur_title, $title_matches );
+                    preg_match_all( '/'.$keyword.'/i', $cur_content, $content_matches );
+                    preg_match_all( '/'.$keyword.'/i', $cur_excerpt, $excerpt_matches );
+
+                    $keywords_matches = count($keywords_matches[0]);
+                    $title_matches = count($title_matches[0]);
+                    $content_matches = count($content_matches[0]);
+                    $excerpt_matches = count($excerpt_matches[0]);
+
+                    if( $keywords_matches > 0 ) {
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + 5;
+                    }
+                    if( $title_matches > 0 ) {
+                        $density = $title_words / $title_matches;
+                        $density = $density > 1 ? 1 : $density;
+                        $density++;
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + (3 * $density);
+                    }
+                    if( $content_matches > 0 ) {
+                        $density = $content_words / $content_matches;
+                        $density = $density > 1 ? 1 : $density;
+                        $density++;
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + (2 * $density);
+                    }
+                    if( $excerpt_matches > 0 ) {
+                        $density = $excerpt_words / $excerpt_matches;
+                        $density = $density > 1 ? 1 : $density;
+                        $density++;
+                        $this->posts[$cur_id] = $this->posts[$cur_id] + (1 * $density);
+                    }
+
+                    // similar matches
                     $length = strlen($keyword);
-                    foreach( $this->explode_keywords($cur_keywords) as $cur_keywords_word ) {
-                        $keywords_similar = 1 - ( levenshtein( $keyword, $cur_keywords_word ) / $length );
-                        $keywords_similar = $keywords_similar < 0 ? 0 : $keywords_similar;
-                        $this->posts[$cur_id] = $this->posts[$cur_id] + $keywords_similar;
-                    }
+                    $this->posts[$cur_id] = $this->posts[$cur_id] + $this->calc_levenshtein( $cur_keywords, $keyword, $length );
+                    $this->posts[$cur_id] = $this->posts[$cur_id] + $this->calc_levenshtein( $cur_title, $keyword, $length );
+                    $this->posts[$cur_id] = $this->posts[$cur_id] + $this->calc_levenshtein( $cur_excerpt, $keyword, $length );
 
-                    foreach( $this->explode_keywords($cur_title) as $cur_title_word ) {
-                        $title_similar = 1 - ( levenshtein( $keyword, $cur_title_word ) / $length );
-                        $title_similar = $title_similar < 0 ? 0 : $title_similar;
-                        $this->posts[$cur_id] = $this->posts[$cur_id] + $title_similar;
-                    }
-
-                    foreach( $this->explode_keywords($cur_excerpt) as $cur_excerpt_word ) {
-                        $excerpt_similar = 1 - ( levenshtein( $keyword, $cur_excerpt_word ) / $length );
-                        $excerpt_similar = $excerpt_similar < 0 ? 0 : $excerpt_similar;
-                        $this->posts[$cur_id] = $this->posts[$cur_id] + $excerpt_similar;
-                    }
+                    $this->posts[$cur_id] = $this->posts[$cur_id] + $this->calc_misspelling( $keyword, $cur_keywords );
+                    $this->posts[$cur_id] = $this->posts[$cur_id] + $this->calc_misspelling( $keyword, $cur_title );
+                    $this->posts[$cur_id] = $this->posts[$cur_id] + $this->calc_misspelling( $keyword, $cur_excerpt );
                 }
 
             endwhile;
@@ -120,17 +162,11 @@ class similar_content extends wp_suchanalyse {
 
                     // similar
                     $length = strlen($keyword);
-                    foreach( $this->explode_keywords($cur_title) as $cur_title_word ) {
-                        $title_similar = 1 - ( levenshtein( $keyword, $cur_title_word ) / $length );
-                        $title_similar = $title_similar < 0 ? 0 : $title_similar;
-                        $this->categories[$cur_id] = $this->categories[$cur_id] + $title_similar;
-                    }
+                    $this->categories[$cur_id] = $this->categories[$cur_id] + $this->calc_levenshtein( $cur_title, $keyword, $length );
+                    $this->categories[$cur_id] = $this->categories[$cur_id] + $this->calc_levenshtein( $cur_description, $keyword, $length );
 
-                    foreach( $this->explode_keywords($cur_description) as $cur_description_word ) {
-                        $description_similar = 1 - ( levenshtein( $keyword, $cur_description_word ) / $length );
-                        $description_similar = $description_similar < 0 ? 0 : $description_similar;
-                        $this->categories[$cur_id] = $this->categories[$cur_id] + $description_similar;
-                    }
+                    $this->categories[$cur_id] = $this->categories[$cur_id] + $this->calc_misspelling( $keyword, $cur_title );
+                    $this->categories[$cur_id] = $this->categories[$cur_id] + $this->calc_misspelling( $keyword, $cur_description );
                 }
 
             arsort($this->categories);
@@ -162,21 +198,59 @@ class similar_content extends wp_suchanalyse {
 
                 // similar
                 $length = strlen($keyword);
-                foreach( $this->explode_keywords($cur_title) as $cur_title_word ) {
-                    $title_similar = 1 - ( levenshtein( $keyword, $cur_title_word ) / $length );
-                    $title_similar = $title_similar < 0 ? 0 : $title_similar;
-                    $this->tags[$cur_id] = $this->tags[$cur_id] + $title_similar;
-                }
+                $this->tags[$cur_id] = $this->tags[$cur_id] + $this->calc_levenshtein( $cur_title, $keyword, $length );
+                $this->tags[$cur_id] = $this->tags[$cur_id] + $this->calc_levenshtein( $cur_description, $keyword, $length );
 
-                foreach( $this->explode_keywords($cur_description) as $cur_description_word ) {
-                    $description_similar = 1 - ( levenshtein( $keyword, $cur_description_word ) / $length );
-                    $description_similar = $description_similar < 0 ? 0 : $description_similar;
-                    $this->tags[$cur_id] = $this->tags[$cur_id] + $description_similar;
-                }
+                $this->tags[$cur_id] = $this->tags[$cur_id] + $this->calc_misspelling( $keyword, $cur_title );
+                $this->tags[$cur_id] = $this->tags[$cur_id] + $this->calc_misspelling( $keyword, $cur_description );
             }
 
             arsort($this->tags);
         }
+    }
+
+
+
+    private function calc_levenshtein( $cur_text, $keyword, $length ) {
+        $return = 0;
+        $cur_text = preg_replace( '/[^a-z0-9äöüß]/i', ' ', $cur_text );
+        foreach( $this->explode_keywords($cur_text) as $cur_text_word ) {
+            $similar = 1 - ( levenshtein( $keyword, $cur_text_word ) / $length );
+            $similar = $similar < 0 ? 0 : $similar;
+            $similar = $similar < 0.25 ? 0 : $similar;
+            $similar = $similar >= 0.5 ? $similar * 2 : $similar;
+            $return += $similar;
+        }
+        $return = round( $return, 4 );
+        return $return;
+    }
+
+    private function calc_misspelling( $word1, $text ) {
+        $return = 0;
+        $text = preg_replace( '/[^a-z0-9äöüß]/i', ' ', $text );
+
+        foreach( $this->explode_keywords($text) as $word2 ) {
+            $w1_len  = strlen($word1);
+            $w2_len  = strlen($word2);
+            $score  += $w1_len > $w2_len ? $w1_len - $w2_len : $w2_len - $w1_len;
+
+            $w1 = $w1_len > $w2_len ? $word1 : $word2;
+            $w2 = $w1_len > $w2_len ? $word2 : $word1;
+
+            for($i=0; $i < strlen($w1); $i++) {
+                if ( !isset($w2[$i]) || $w1[$i] != $w2[$i] ) {
+                    $score++;
+                }
+            }
+
+            $score = 10 - $score;
+            $score = $score < 0 ? 0 : $score;
+            $score = $score <= 5 ? 0 : $score;
+            $score = $score > 5 ? 1 : 0;
+            $return += $score;
+        }
+
+        return $return;
     }
 
 
