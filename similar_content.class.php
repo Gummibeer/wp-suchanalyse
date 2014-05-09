@@ -2,7 +2,7 @@
 /**
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
- * Copyright 2014 Tom Witkowski (email : dev.gummibeer@gmail.com)
+ * Copyright: 2014 Tom Witkowski (email: dev.gummibeer@gmail.com)
  * License: GPL2
  */
 
@@ -30,7 +30,6 @@ class similar_content extends wp_suchanalyse {
             'numberposts' => -1,
             'post_type' => 'post',
             'post_status' => 'publish',
-
         );
         $the_query = new WP_Query( $args );
 

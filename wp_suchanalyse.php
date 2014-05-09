@@ -7,7 +7,7 @@
  * Text Domain: wp_suchanalyse
  * Author: Tom Witkowski
  * Author URI: https://github.com/Gummibeer
- * Copyright 2014 Tom Witkowski (email : dev.gummibeer@gmail.com)
+ * Copyright: 2014 Tom Witkowski (email: dev.gummibeer@gmail.com)
  * License: GPL2
  */
 
@@ -29,11 +29,11 @@ class wp_suchanalyse {
         $this->plugin_file = __FILE__;
         $this->plugin_dir = dirname($this->plugin_file).'/';
 
-        $plugin_data = get_plugin_data( $this->plugin_file, false, false );
+//        $plugin_data = get_plugin_data( $this->plugin_file, false, false );
 
-        $this->plugin_name = $plugin_data['Name'];
-        $this->plugin_slug = $plugin_data['TextDomain'];
-        $this->plugin_version = $plugin_data['Version'];
+        $this->plugin_name = 'Wordpress Suchanalayse'; //$plugin_data['Name'];
+        $this->plugin_slug =  'wp_suchanalyse'; //$plugin_data['TextDomain'];
+        $this->plugin_version =  '1.1.10'; //$plugin_data['Version'];
 
         $this->plugin_url = plugins_url().'/'.$this->plugin_slug.'/';
 
@@ -137,10 +137,22 @@ class wp_suchanalyse {
                     $search_results = $search_check->post_count;
                     $search_class = $search_results == 0 ? ' no_post' : '';
 
+                    $similar_out = '';
+                    if( $search_results == 0 ) {
+                        $similar_search = new similar_content( $result->keyword );
+                        $similar_counter = 0;
+                        $similar_counter += count( $similar_search->get_posts_id() );
+                        $similar_counter += count( $similar_search->get_categories_id() );
+                        $similar_counter += count( $similar_search->get_tags_id() );
+
+                        $similar_out .= ' + ';
+                        $similar_out .= $similar_counter;
+                    }
+
                     $out .= '<li>'.
                             '<strong>'.$result->keyword.'</strong>'.
                             '<span class="counter">('.$result->count.')</span>'.
-                            '<a href="'.add_query_arg( array( 's' => $result->keyword ), get_site_url() ).'" class="results'.$search_class.'" target="_blank">('.$search_results.')</a>'.
+                            '<a href="'.add_query_arg( array( 's' => $result->keyword ), get_site_url() ).'" class="results'.$search_class.'" target="_blank">('.$search_results.$similar_out.')</a>'.
                             '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
                             '</li>';
                 }
@@ -208,19 +220,6 @@ class wp_suchanalyse {
 							}
 						});
 					</script>";
-
-        $out .= '<br />';
-        $out .= '<hr />';
-        $out .= '<h4>Beispiel</h4>';
-        $out .= '<ul>';
-        $out .= '<li>';
-        $out .= '<strong>Suchwort</strong>';
-        $out .= '<span class="counter">Suchanzahl</span>';
-        $out .= '<a href="#" class="results">Suchergebnisse</a>';
-        $out .= '<a href="#" title="Suchwort blockieren" class="block">Aktion</a>';
-        $out .= '</li>';
-        $out .= '</ul>';
-        $out .= '<div class="clear"></div>';
 
         $out .= '<hr />';
         $out .= '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete' ) ).'" title="">alle Daten löschen</a>';
@@ -302,10 +301,22 @@ class wp_suchanalyse {
                     $search_results = $search_check->post_count;
                     $search_class = $search_results == 0 ? ' no_post' : '';
 
+                    $similar_out = '';
+                    if( $search_results == 0 ) {
+                        $similar_search = new similar_content( $result->keyword );
+                        $similar_counter = 0;
+                        $similar_counter += count( $similar_search->get_posts_id() );
+                        $similar_counter += count( $similar_search->get_categories_id() );
+                        $similar_counter += count( $similar_search->get_tags_id() );
+
+                        $similar_out .= ' + ';
+                        $similar_out .= $similar_counter;
+                    }
+
                     $out .= '<li>'.
                             '<strong>'.$result->keyword.'</strong>'.
                             '<span class="counter">('.$result->count.')</span>'.
-                            '<a href="'.add_query_arg( array( 's' => $result->keyword ), get_site_url() ).'" class="results'.$search_class.'" target="_blank">('.$search_results.')</a>'.
+                            '<a href="'.add_query_arg( array( 's' => $result->keyword ), get_site_url() ).'" class="results'.$search_class.'" title="Suchtreffer + Ähnlichkeitssuche" target="_blank">('.$search_results.$similar_out.')</a>'.
                             '<a href="'.add_query_arg( array( $this->plugin_slug => 'block', 'keyword' => $result->keyword ) ).'" title="Suchwort blockieren" class="block"><i class="icon-security-shield"></i></a>'.
                             '</li>';
                 }
@@ -366,19 +377,6 @@ class wp_suchanalyse {
 							}
 						});
 					</script>";
-
-        $out .= '<br />';
-        $out .= '<hr />';
-        $out .= '<h4>Beispiel</h4>';
-        $out .= '<ul>';
-        $out .= '<li>';
-        $out .= '<strong>Suchwort</strong>';
-        $out .= '<span class="counter">Suchanzahl</span>';
-        $out .= '<a href="#" class="results">Suchergebnisse</a>';
-        $out .= '<a href="#" title="Suchwort blockieren" class="block">Aktion</a>';
-        $out .= '</li>';
-        $out .= '</ul>';
-        $out .= '<div class="clear"></div>';
 
         $out .= '<hr />';
         $out .= '<a href="'.add_query_arg( array( $this->plugin_slug => 'delete' ) ).'" title="">alle Daten löschen</a>';
