@@ -226,6 +226,7 @@ class similar_content extends wp_suchanalyse {
 
     private function calc_misspelling( $word1, $text ) {
         $return = 0;
+        $score = 0;
         $text = preg_replace( '/[^a-z0-9äöüß]/i', ' ', $text );
 
         foreach( $this->explode_keywords($text) as $word2 ) {

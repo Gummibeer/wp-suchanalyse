@@ -29,11 +29,9 @@ class wp_suchanalyse {
         $this->plugin_file = __FILE__;
         $this->plugin_dir = dirname($this->plugin_file).'/';
 
-//        $plugin_data = get_plugin_data( $this->plugin_file, false, false );
-
-        $this->plugin_name = 'Wordpress Suchanalayse'; //$plugin_data['Name'];
-        $this->plugin_slug =  'wp_suchanalyse'; //$plugin_data['TextDomain'];
-        $this->plugin_version =  '1.1.10'; //$plugin_data['Version'];
+        $this->plugin_name = 'Wordpress Suchanalayse';
+        $this->plugin_slug =  'wp_suchanalyse';
+        $this->plugin_version =  '1.1.10';
 
         $this->plugin_url = plugins_url().'/'.$this->plugin_slug.'/';
 
