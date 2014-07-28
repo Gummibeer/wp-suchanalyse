@@ -1,8 +1,8 @@
 <?php
-$similar_search = new similar_content( get_search_query(false), false );
-$similar_posts = $similar_search->get_posts_id();
-$similar_categories = $similar_search->get_categories_id();
-$similar_tags = $similar_search->get_tags_id();
+$test = new similar_content( get_search_query(false), false );
+$similar_posts = $test->get_posts_id();
+$similar_categories = $test->get_categories_id();
+$similar_tags = $test->get_tags_id();
 
 if( $similar_posts !== false && !empty($similar_posts) ) {
     echo 'Beiträge: ';
